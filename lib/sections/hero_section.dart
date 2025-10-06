@@ -33,7 +33,7 @@ class HeroSection extends StatelessWidget {
                   "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
                 ),
                 fit: BoxFit.cover,
-                opacity: 0.1,
+                opacity: 0.3,
               ),
       ),
       child: Container(

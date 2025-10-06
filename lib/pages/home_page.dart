@@ -90,37 +90,28 @@ class _HomePageState extends State<HomePage> {
           onContactTap: () => _scrollToSection(_contactKey),
           onFaqTap: () => _scrollToSection(_faqKey),
         ),
-        body: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+        body: SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              // Hero Section
+              Container(key: _heroKey, child: const HeroSection()),
 
-          child: Ink.image(
-            image: const AssetImage("assets/images/kalllwik.jpg"),
-            fit: BoxFit.fill,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                children: [
-                  // Hero Section
-                  Container(key: _heroKey, child: const HeroSection()),
+              // About Section
+              Container(key: _aboutKey, child: const AboutSection()),
 
-                  // About Section
-                  Container(key: _aboutKey, child: const AboutSection()),
+              // Services Section
+              Container(key: _servicesKey, child: const ServicesSection()),
 
-                  // Services Section
-                  Container(key: _servicesKey, child: const ServicesSection()),
+              // Contact Section
+              Container(key: _contactKey, child: const ContactSection()),
 
-                  // Contact Section
-                  Container(key: _contactKey, child: const ContactSection()),
+              // FAQ Section
+              Container(key: _faqKey, child: const FAQSection()),
 
-                  // FAQ Section
-                  Container(key: _faqKey, child: const FAQSection()),
-
-                  // Footer
-                  const Footer(),
-                ],
-              ),
-            ),
+              // Footer
+              const Footer(),
+            ],
           ),
         ),
       ),

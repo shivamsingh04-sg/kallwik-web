@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/32328a96-80c2-447b-86ed-ba3e9b6d2b33/resourceGroups/appsvc_windows_centralindia/providers/Microsoft.Web/sites/kallwik-website",
+    "appService.deploySubpath": "."
+}

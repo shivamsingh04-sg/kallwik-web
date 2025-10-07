@@ -211,7 +211,7 @@ class _ContactSectionState extends State<ContactSection> {
             _buildContactItem(
               Icons.location_on_rounded,
               "Visit Us",
-              "Indore, Madhya Pradesh\nIndia",
+              "UG 126, First Floor, Vikram Square,\nNear Footi Kothi Ranjeet Hanuman Road,\nIndore, Madhya Pradesh 452009",
               const Color(0xFFEF4444),
               isDark,
             ),
@@ -227,7 +227,7 @@ class _ContactSectionState extends State<ContactSection> {
             _buildContactItem(
               Icons.phone_rounded,
               "Call Us",
-              "+91 XXX-XXX-XXXX\nMon-Fri, 9AM-6PM IST",
+              "+91 7314613591\nMon-Fri, 9AM-6PM IST",
               const Color(0xFF10B981),
               isDark,
             ),

@@ -41,6 +41,7 @@ dependencies:
   http: ^1.1.0
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
@@ -55,6 +56,15 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+flutter_launcher_icons:       # 👈 use flutter_launcher_icons (not flutter_icons)
+  android: true
+  ios: true
+  image_path: "assets/images/app_logo.png"
+  web:
+    generate: true
+    image_path: "assets/images/app_logo.png"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
 flutter:
 
   # The following line ensures that the Material Icons font is

@@ -20,20 +20,21 @@ class AboutSection extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-        // Subtle pattern overlay
         image: DecorationImage(
           image: const NetworkImage(
-            "https://images.unsplash.com/photo-1557804506-669a67965ba0", // Subtle tech pattern
+            "https://images.unsplash.com/photo-1557804506-669a67965ba0",
           ),
           fit: BoxFit.cover,
           opacity: isDark ? 0.03 : 0.02,
         ),
       ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        child: isMobile
-            ? _buildMobileLayout(context, theme, isDark)
-            : _buildDesktopLayout(context, theme, isDark),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: isMobile
+              ? _buildMobileLayout(context, theme, isDark)
+              : _buildDesktopLayout(context, theme, isDark),
+        ),
       ),
     );
   }
@@ -46,12 +47,8 @@ class AboutSection extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Left: Enhanced Image Section
         Expanded(flex: 1, child: _buildImageSection(context, theme, isDark)),
-
         const SizedBox(width: 80),
-
-        // Right: Content Section
         Expanded(flex: 1, child: _buildContentSection(context, theme, isDark)),
       ],
     );
@@ -64,10 +61,8 @@ class AboutSection extends StatelessWidget {
   ) {
     return Column(
       children: [
-        // Content first on mobile
         _buildContentSection(context, theme, isDark),
         const SizedBox(height: 40),
-        // Image below content on mobile
         _buildImageSection(context, theme, isDark),
       ],
     );
@@ -78,6 +73,9 @@ class AboutSection extends StatelessWidget {
     ThemeData theme,
     bool isDark,
   ) {
+    final screenSize = MediaQuery.of(context).size;
+    final isMobile = screenSize.width < 768;
+
     return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -98,7 +96,7 @@ class AboutSection extends StatelessWidget {
                 child: AspectRatio(
                   aspectRatio: 4 / 3,
                   child: Image.network(
-                    "https://images.unsplash.com/photo-1600880292203-757bb62b4baf", // Professional team image
+                    "https://images.unsplash.com/photo-1600880292203-757bb62b4baf",
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
@@ -126,19 +124,19 @@ class AboutSection extends StatelessWidget {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.3),
+                        Colors.black.withOpacity(0.4),
                       ],
                     ),
                   ),
                 ),
               ),
 
-              // Stats overlay
+              // Enhanced animated overlay
               Positioned(
                 bottom: 20,
                 left: 20,
                 right: 20,
-                child: _buildStatsOverlay(isDark),
+                child: _buildAnimatedOverlay(isDark, isMobile),
               ),
             ],
           ),
@@ -148,47 +146,170 @@ class AboutSection extends StatelessWidget {
         .slideX(begin: -0.3, curve: Curves.easeOutCubic);
   }
 
-  Widget _buildStatsOverlay(bool isDark) {
+  Widget _buildAnimatedOverlay(bool isDark, bool isMobile) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isMobile ? 12 : 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withOpacity(0.95),
+            Colors.white.withOpacity(0.85),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Column(
         children: [
-          _buildStatItem("1+", "Years", const Color(0xFF3B82F6)),
-          _buildStatItem("15", "Projects", const Color(0xFF10B981)),
-          _buildStatItem("24/7", "Support", const Color(0xFFF59E0B)),
+          // Title with shimmer
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                    Icons.workspace_premium_rounded,
+                    color: const Color(0xFF3B82F6),
+                    size: isMobile ? 18 : 20,
+                  )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .shimmer(duration: 2000.ms, color: const Color(0xFF60A5FA))
+                  .rotate(
+                    duration: 3000.ms,
+                    begin: 0,
+                    end: 0.05,
+                    curve: Curves.easeInOut,
+                  ),
+              SizedBox(width: isMobile ? 6 : 8),
+              Text(
+                "Why Choose Us",
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 16,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF0F172A),
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: isMobile ? 12 : 16),
+          // Animated feature badges
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: isMobile ? 8 : 12,
+            runSpacing: isMobile ? 8 : 12,
+            children: [
+              _buildFeatureBadge(
+                icon: Icons.rocket_launch_rounded,
+                label: "Fast Delivery",
+                color: const Color(0xFF3B82F6),
+                delay: 300,
+                isMobile: isMobile,
+              ),
+              _buildFeatureBadge(
+                icon: Icons.verified_user_rounded,
+                label: "Trusted",
+                color: const Color(0xFF10B981),
+                delay: 500,
+                isMobile: isMobile,
+              ),
+              _buildFeatureBadge(
+                icon: Icons.star_rounded,
+                label: "Excellence",
+                color: const Color(0xFFF59E0B),
+                delay: 700,
+                isMobile: isMobile,
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String number, String label, Color color) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          number,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: color,
+  Widget _buildFeatureBadge({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required int delay,
+    required bool isMobile,
+  }) {
+    return Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 10 : 12,
+            vertical: isMobile ? 6 : 8,
           ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF64748B),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [color.withOpacity(0.15), color.withOpacity(0.05)],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ),
-      ],
-    );
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: isMobile ? 14 : 16)
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .shimmer(
+                    duration: 2000.ms,
+                    color: Colors.white.withOpacity(0.5),
+                    delay: Duration(milliseconds: delay),
+                  )
+                  .scale(
+                    duration: 2000.ms,
+                    begin: const Offset(1.0, 1.0),
+                    end: const Offset(1.1, 1.1),
+                    curve: Curves.easeInOut,
+                  )
+                  .then()
+                  .scale(
+                    duration: 2000.ms,
+                    begin: const Offset(1.1, 1.1),
+                    end: const Offset(1.0, 1.0),
+                    curve: Curves.easeInOut,
+                  ),
+              SizedBox(width: isMobile ? 4 : 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: isMobile ? 11 : 12,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        )
+        .animate()
+        .fadeIn(
+          duration: 600.ms,
+          delay: Duration(milliseconds: delay),
+        )
+        .scale(
+          begin: const Offset(0.8, 0.8),
+          curve: Curves.easeOutBack,
+          delay: Duration(milliseconds: delay),
+        )
+        .then(delay: 200.ms)
+        .shimmer(duration: 2500.ms, color: color.withOpacity(0.3));
   }
 
   Widget _buildContentSection(
@@ -196,6 +317,9 @@ class AboutSection extends StatelessWidget {
     ThemeData theme,
     bool isDark,
   ) {
+    final screenSize = MediaQuery.of(context).size;
+    final isMobile = screenSize.width < 768;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -213,7 +337,7 @@ class AboutSection extends StatelessWidget {
               child: Text(
                 "ABOUT US",
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: isMobile ? 10 : 12,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF3B82F6),
                   letterSpacing: 1.5,
@@ -224,13 +348,13 @@ class AboutSection extends StatelessWidget {
             .fadeIn(duration: 800.ms, delay: 400.ms)
             .slideY(begin: 0.2, curve: Curves.easeOutCubic),
 
-        const SizedBox(height: 24),
+        SizedBox(height: isMobile ? 16 : 24),
 
         // Main heading
         Text(
               "Empowering Digital Innovation",
               style: TextStyle(
-                fontSize: 42,
+                fontSize: isMobile ? 28 : 42,
                 fontWeight: FontWeight.w800,
                 color: isDark ? Colors.white : const Color(0xFF0F172A),
                 height: 1.2,
@@ -241,13 +365,13 @@ class AboutSection extends StatelessWidget {
             .fadeIn(duration: 1000.ms, delay: 600.ms)
             .slideY(begin: 0.3, curve: Curves.easeOutCubic),
 
-        const SizedBox(height: 16),
+        SizedBox(height: isMobile ? 12 : 16),
 
         // Subheading
         Text(
               "Building Tomorrow's Technology Today",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: isMobile ? 16 : 20,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF3B82F6),
                 letterSpacing: 0.3,
@@ -257,13 +381,13 @@ class AboutSection extends StatelessWidget {
             .fadeIn(duration: 1000.ms, delay: 800.ms)
             .slideY(begin: 0.2, curve: Curves.easeOutCubic),
 
-        const SizedBox(height: 32),
+        SizedBox(height: isMobile ? 20 : 32),
 
         // Main description
         Text(
               "Kallwik Technologies is a forward-thinking software company that specializes in building scalable, user-friendly, and innovative digital solutions. Our team of experts is committed to helping businesses transform and grow through cutting-edge technology.",
               style: TextStyle(
-                fontSize: 18,
+                fontSize: isMobile ? 15 : 18,
                 color: isDark
                     ? Colors.white.withOpacity(0.8)
                     : const Color(0xFF64748B),
@@ -275,7 +399,7 @@ class AboutSection extends StatelessWidget {
             .fadeIn(duration: 1000.ms, delay: 1000.ms)
             .slideY(begin: 0.2, curve: Curves.easeOutCubic),
 
-        const SizedBox(height: 24),
+        SizedBox(height: isMobile ? 20 : 24),
 
         // Key points
         Column(
@@ -285,46 +409,74 @@ class AboutSection extends StatelessWidget {
               "Leveraging cutting-edge technologies to deliver exceptional results",
               isDark,
               1200,
+              isMobile,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: isMobile ? 12 : 16),
             _buildKeyPoint(
               "🎯 Client-Focused",
               "Tailored solutions that align with your business objectives",
               isDark,
               1400,
+              isMobile,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: isMobile ? 12 : 16),
             _buildKeyPoint(
               "⚡ Performance Optimized",
               "Scalable architecture designed for growth and efficiency",
               isDark,
               1600,
+              isMobile,
             ),
           ],
         ),
 
-        const SizedBox(height: 40),
+        SizedBox(height: isMobile ? 30 : 40),
 
         // CTA Buttons
-        Row(
-          children: [
-            _buildCTAButton(
-              "Learn More",
-              const Color(0xFF3B82F6),
-              Colors.white,
-              true,
-              1800,
-            ),
-            const SizedBox(width: 16),
-            _buildCTAButton(
-              "Our Portfolio",
-              Colors.transparent,
-              isDark ? Colors.white : const Color(0xFF0F172A),
-              false,
-              2000,
-            ),
-          ],
-        ),
+        isMobile
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildCTAButton(
+                    "Learn More",
+                    const Color(0xFF3B82F6),
+                    Colors.white,
+                    true,
+                    1800,
+                    isMobile,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCTAButton(
+                    "Our Portfolio",
+                    Colors.transparent,
+                    isDark ? Colors.white : const Color(0xFF0F172A),
+                    false,
+                    2000,
+                    isMobile,
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  _buildCTAButton(
+                    "Learn More",
+                    const Color(0xFF3B82F6),
+                    Colors.white,
+                    true,
+                    1800,
+                    isMobile,
+                  ),
+                  const SizedBox(width: 16),
+                  _buildCTAButton(
+                    "Our Portfolio",
+                    Colors.transparent,
+                    isDark ? Colors.white : const Color(0xFF0F172A),
+                    false,
+                    2000,
+                    isMobile,
+                  ),
+                ],
+              ),
       ],
     );
   }
@@ -334,6 +486,7 @@ class AboutSection extends StatelessWidget {
     String description,
     bool isDark,
     int delay,
+    bool isMobile,
   ) {
     return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,7 +507,7 @@ class AboutSection extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: isMobile ? 14 : 16,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
@@ -363,7 +516,7 @@ class AboutSection extends StatelessWidget {
                   Text(
                     description,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: isMobile ? 13 : 14,
                       color: isDark
                           ? Colors.white.withOpacity(0.7)
                           : const Color(0xFF64748B),
@@ -389,6 +542,7 @@ class AboutSection extends StatelessWidget {
     Color textColor,
     bool isPrimary,
     int delay,
+    bool isMobile,
   ) {
     return Container(
           decoration: BoxDecoration(
@@ -419,17 +573,19 @@ class AboutSection extends StatelessWidget {
               },
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 20 : 24,
+                  vertical: isMobile ? 14 : 12,
                 ),
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
+                child: Center(
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: isMobile ? 14 : 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),

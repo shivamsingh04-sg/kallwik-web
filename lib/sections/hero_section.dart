@@ -9,10 +9,9 @@ class HeroSection extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
     final isTablet = screenSize.width >= 768 && screenSize.width < 1024;
     final isMobile = screenSize.width < 768;
-    final isVerySmallScreen = screenSize.height < 600; // Very small screens
+    final isVerySmallScreen = screenSize.height < 600;
 
     return Container(
-      // Use safe height constraints
       height: _getResponsiveHeight(screenSize),
       width: double.infinity,
       decoration: BoxDecoration(
@@ -20,12 +19,11 @@ class HeroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF0F172A), // Dark slate
+            const Color(0xFF0F172A),
             const Color(0xFF1E293B).withOpacity(0.9),
             const Color(0xFF334155).withOpacity(0.7),
           ],
         ),
-        // Optimized background for mobile performance
         image: isMobile
             ? null
             : const DecorationImage(
@@ -37,7 +35,6 @@ class HeroSection extends StatelessWidget {
               ),
       ),
       child: Container(
-        // Enhanced overlay with subtle gradient
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -69,10 +66,8 @@ class HeroSection extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Add top spacer for better centering
                           if (!isVerySmallScreen) const Spacer(flex: 1),
 
-                          // Company name with enhanced typography
                           Text(
                                 "Kallwik Technologies",
                                 style: TextStyle(
@@ -95,11 +90,10 @@ class HeroSection extends StatelessWidget {
 
                           SizedBox(height: isVerySmallScreen ? 12 : 20),
 
-                          // Enhanced tagline with better hierarchy
                           Text(
                                 "Empowering Digital Transformation",
                                 style: TextStyle(
-                                  color: const Color(0xFF60A5FA), // Blue accent
+                                  color: const Color(0xFF60A5FA),
                                   fontSize: _getResponsiveFontSize(
                                     screenSize,
                                     mobile: isVerySmallScreen ? 14 : 16,
@@ -117,7 +111,6 @@ class HeroSection extends StatelessWidget {
 
                           SizedBox(height: isVerySmallScreen ? 8 : 12),
 
-                          // Main description with better readability
                           Container(
                                 constraints: BoxConstraints(
                                   maxWidth: isMobile ? double.infinity : 600,
@@ -147,22 +140,19 @@ class HeroSection extends StatelessWidget {
 
                           SizedBox(height: isVerySmallScreen ? 24 : 32),
 
-                          // Enhanced CTA buttons - Mobile optimized
                           _buildCTASection(isMobile, isVerySmallScreen),
 
                           SizedBox(height: isVerySmallScreen ? 24 : 40),
 
-                          // Trust indicators/stats - Conditional for very small screens
+                          // Animated Feature Showcase
                           if (!isVerySmallScreen || screenSize.height > 500)
-                            _buildTrustIndicators(isMobile)
+                            _buildAnimatedFeatures(isMobile, isVerySmallScreen)
                                 .animate()
                                 .fadeIn(duration: 1000.ms, delay: 1200.ms)
                                 .slideY(begin: 0.3, curve: Curves.easeOutCubic),
 
-                          // Bottom spacer for better centering
                           if (!isVerySmallScreen) const Spacer(flex: 1),
 
-                          // Minimum bottom spacing
                           SizedBox(height: isVerySmallScreen ? 16 : 24),
                         ],
                       ),
@@ -178,10 +168,9 @@ class HeroSection extends StatelessWidget {
   }
 
   double _getResponsiveHeight(Size screenSize) {
-    if (screenSize.width < 768)
-      return screenSize.height < 600 ? 500 : 600; // Mobile
-    if (screenSize.width < 1024) return 550; // Tablet
-    return 650; // Desktop
+    if (screenSize.width < 768) return screenSize.height < 600 ? 500 : 600;
+    if (screenSize.width < 1024) return 550;
+    return 650;
   }
 
   double _getResponsiveFontSize(
@@ -197,7 +186,6 @@ class HeroSection extends StatelessWidget {
 
   Widget _buildCTASection(bool isMobile, bool isVerySmallScreen) {
     if (isMobile) {
-      // Stack buttons vertically on mobile for better touch targets
       return Column(
         children: [
           SizedBox(
@@ -230,7 +218,6 @@ class HeroSection extends StatelessWidget {
         ],
       );
     } else {
-      // Horizontal layout for tablet/desktop
       return Wrap(
         spacing: 16,
         runSpacing: 16,
@@ -309,55 +296,125 @@ class HeroSection extends StatelessWidget {
         .scale(begin: const Offset(0.9, 0.9), curve: Curves.easeOutBack);
   }
 
-  Widget _buildTrustIndicators(bool isMobile) {
+  Widget _buildAnimatedFeatures(bool isMobile, bool isVerySmallScreen) {
+    final features = [
+      {
+        'icon': Icons.speed_rounded,
+        'label': 'Lightning Fast',
+        'color': const Color(0xFF60A5FA),
+      },
+      {
+        'icon': Icons.security_rounded,
+        'label': 'Secure',
+        'color': const Color(0xFF34D399),
+      },
+      {
+        'icon': Icons.auto_awesome_rounded,
+        'label': 'Innovative',
+        'color': const Color(0xFFFBBF24),
+      },
+      {
+        'icon': Icons.trending_up_rounded,
+        'label': 'Scalable',
+        'color': const Color(0xFFF472B6),
+      },
+    ];
+
     return Container(
-      constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : 500),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildStat("15", "Projects", isMobile),
-          _buildDivider(),
-          _buildStat("1+", "Years", isMobile),
-          _buildDivider(),
-          _buildStat("24/7", "Support", isMobile),
-        ],
+      constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : 600),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: isMobile ? 12 : 20,
+        runSpacing: isMobile ? 12 : 16,
+        children: features.asMap().entries.map((entry) {
+          final index = entry.key;
+          final feature = entry.value;
+
+          return _buildFeatureChip(
+            icon: feature['icon'] as IconData,
+            label: feature['label'] as String,
+            color: feature['color'] as Color,
+            delay: 1400 + (index * 150),
+            isMobile: isMobile,
+            isVerySmallScreen: isVerySmallScreen,
+          );
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildStat(String number, String label, bool isMobile) {
-    return Flexible(
-      child: Column(
-        children: [
-          Text(
-            number,
-            style: TextStyle(
-              color: const Color(0xFF60A5FA),
-              fontSize: isMobile ? 18 : 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: isMobile ? 10 : 12,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
+  Widget _buildFeatureChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required int delay,
+    required bool isMobile,
+    required bool isVerySmallScreen,
+  }) {
     return Container(
-      height: 24,
-      width: 1,
-      color: Colors.white.withOpacity(0.3),
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-    );
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [color.withOpacity(0.15), color.withOpacity(0.05)],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: isVerySmallScreen ? 12 : (isMobile ? 16 : 20),
+            vertical: isVerySmallScreen ? 8 : (isMobile ? 10 : 12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                    icon,
+                    color: color,
+                    size: isVerySmallScreen ? 16 : (isMobile ? 18 : 20),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .shimmer(
+                    duration: 2000.ms,
+                    color: Colors.white.withOpacity(0.3),
+                    delay: Duration(milliseconds: delay),
+                  )
+                  .shake(
+                    duration: 3000.ms,
+                    hz: 0.5,
+                    delay: Duration(milliseconds: delay + 500),
+                  ),
+              SizedBox(width: isVerySmallScreen ? 6 : 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isVerySmallScreen ? 12 : (isMobile ? 13 : 14),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+        )
+        .animate()
+        .fadeIn(
+          duration: 800.ms,
+          delay: Duration(milliseconds: delay),
+        )
+        .scale(
+          begin: const Offset(0.8, 0.8),
+          curve: Curves.easeOutBack,
+          delay: Duration(milliseconds: delay),
+        )
+        .then()
+        .shimmer(duration: 2500.ms, color: color.withOpacity(0.4));
   }
 }

@@ -40,10 +40,7 @@ class _HomePageState extends State<HomePage> {
     if (context != null) {
       // Find position of the widget
       final box = context.findRenderObject() as RenderBox;
-      final position = box.localToGlobal(
-        Offset.zero,
-        ancestor: context.findRenderObject(),
-      );
+
       final yOffset =
           box.localToGlobal(Offset.zero).dy +
           _scrollController.offset; // relative to scroll
@@ -70,8 +67,7 @@ class _HomePageState extends State<HomePage> {
           isDarkMode: isDarkMode,
           onToggleTheme: () {
             setState(() => isDarkMode = !isDarkMode);
-          },
-          // Navigation callbacks
+          }, // Navigation callbacks
           onHomeTap: () => _scrollToSection(_heroKey),
           onAboutTap: () => _scrollToSection(_aboutKey),
           onServicesTap: () => _scrollToSection(_servicesKey),

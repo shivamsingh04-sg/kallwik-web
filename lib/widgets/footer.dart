@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:animations/animations.dart';
 
 class Footer extends StatefulWidget {
   const Footer({super.key});

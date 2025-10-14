@@ -356,24 +356,36 @@ class _FooterState extends State<Footer> with TickerProviderStateMixin {
         "color": const Color(0xFF1877F2),
         "url": "https://facebook.com/kallwik-technologies-104510001",
         "key": "facebook",
+        "useImage": false,
       },
       {
-        "icon": Icons.business,
+        "imagePath": "assets/icons/linkdin.png", // Add your LinkedIn icon image
         "color": const Color(0xFF0A66C2),
         "url": "https://www.linkedin.com/company/kallwik-technologies/",
         "key": "linkedin",
+        "useImage": true,
       },
       {
-        "icon": Icons.alternate_email,
+        "imagePath":
+            "assets/icons/twitter.png", // Add your Twitter/X icon image
         "color": const Color(0xFF1DA1F2),
         "url": "https://twitter.com/kallwik-technologies",
         "key": "twitter",
+        "useImage": true,
       },
       {
-        "icon": Icons.code,
-        "color": const Color(0xFF6e5494),
+        "imagePath": "assets/icons/Github.png", // Add your GitHub icon image
+        "color": const Color(0xFFFFFFFF),
         "url": "https://github.com/kallwik-technologies",
         "key": "github",
+        "useImage": true,
+      },
+      {
+        "icon": Icons.mail,
+        "color": const Color(0xFFEA4335),
+        "url": "mailto:sales@kallwik.com",
+        "key": "gmail",
+        "useImage": false,
       },
     ];
 
@@ -383,13 +395,25 @@ class _FooterState extends State<Footer> with TickerProviderStateMixin {
       children: socialButtons.asMap().entries.map((entry) {
         final index = entry.key;
         final social = entry.value;
-        return _buildAnimatedSocialButton(
-          social["icon"] as IconData,
-          social["color"] as Color,
-          social["url"] as String,
-          social["key"] as String,
-          index,
-        );
+        final useImage = social["useImage"] as bool;
+
+        if (useImage) {
+          return _buildAnimatedSocialButtonWithImage(
+            social["imagePath"] as String,
+            social["color"] as Color,
+            social["url"] as String,
+            social["key"] as String,
+            index,
+          );
+        } else {
+          return _buildAnimatedSocialButton(
+            social["icon"] as IconData,
+            social["color"] as Color,
+            social["url"] as String,
+            social["key"] as String,
+            index,
+          );
+        }
       }).toList(),
     );
   }
@@ -449,6 +473,74 @@ class _FooterState extends State<Footer> with TickerProviderStateMixin {
                   icon,
                   color: isHovered ? color : color.withOpacity(0.8),
                   size: isHovered ? 26 : 24,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAnimatedSocialButtonWithImage(
+    String imagePath,
+    Color color,
+    String url,
+    String key,
+    int index,
+  ) {
+    final isHovered = _socialHoverStates[key] ?? false;
+
+    return TweenAnimationBuilder<double>(
+      duration: Duration(milliseconds: 600 + (index * 100)),
+      curve: Curves.elasticOut,
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => setState(() => _socialHoverStates[key] = true),
+            onExit: (_) => setState(() => _socialHoverStates[key] = false),
+            child: GestureDetector(
+              onTap: () => _launchURL(url),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                width: 48,
+                height: 48,
+                transform: Matrix4.identity()
+                  ..translate(0.0, isHovered ? -4.0 : 0.0)
+                  ..scale(isHovered ? 1.1 : 1.0),
+                decoration: BoxDecoration(
+                  color: isHovered
+                      ? Colors.white.withOpacity(0.15)
+                      : Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isHovered
+                        ? Colors.white.withOpacity(0.3)
+                        : Colors.white.withOpacity(0.15),
+                    width: isHovered ? 2 : 1,
+                  ),
+                  boxShadow: isHovered
+                      ? [
+                          BoxShadow(
+                            color: color.withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Image.asset(
+                    imagePath,
+                    width: isHovered ? 26 : 24,
+                    height: isHovered ? 26 : 24,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -570,13 +662,25 @@ class _FooterState extends State<Footer> with TickerProviderStateMixin {
         "icon": Icons.email,
         "text": "hr@kallwik.com",
         "url": "mailto:hr@kallwik.com",
-        "key": "email",
+        "key": "email_hr",
+      },
+      {
+        "icon": Icons.email,
+        "text": "sales@kallwik.com",
+        "url": "mailto:sales@kallwik.com",
+        "key": "email_sales",
       },
       {
         "icon": Icons.phone,
         "text": "+91 9827338178",
         "url": "tel:+919827338178",
-        "key": "phone",
+        "key": "phone_india",
+      },
+      {
+        "icon": Icons.phone,
+        "text": "+1 (815) 627-6066",
+        "url": "tel:+18156276066",
+        "key": "phone_us",
       },
     ];
 

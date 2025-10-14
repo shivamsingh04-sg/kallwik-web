@@ -11,6 +11,13 @@ class ContactSection extends StatefulWidget {
 }
 
 class _ContactSectionState extends State<ContactSection> {
+  // --- layout tuning constants (adjustable) ---
+  static const double _kMaxContentWidth = 1200; // tightened from 1400
+  static const double _kDesktopHorizontalPadding = 48; // reduced from 80
+  static const double _kTabletHorizontalPadding = 40;
+  static const double _kRightPanelWidth = 260; // reduced from 320
+  static const double _kColumnGapDesktop = 20; // reduced from 36
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -18,6 +25,7 @@ class _ContactSectionState extends State<ContactSection> {
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
 
+  String _SelectedServiceFallback = 'General Inquiry';
   String _selectedService = 'General Inquiry';
   bool _isSubmitting = false;
   bool _showSuccess = false;
@@ -128,6 +136,27 @@ class _ContactSectionState extends State<ContactSection> {
     }
   }
 
+  void _launchEmail(String email) async {
+    final Uri emailUri = Uri(scheme: 'mailto', path: email);
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    }
+  }
+
+  void _launchPhone(String phone) async {
+    final Uri phoneUri = Uri(
+      scheme: 'tel',
+      path: phone
+          .replaceAll(' ', '')
+          .replaceAll('(', '')
+          .replaceAll(')', '')
+          .replaceAll('-', ''),
+    );
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -138,6 +167,11 @@ class _ContactSectionState extends State<ContactSection> {
     final isDesktop = width >= 1100;
     final isTablet = width >= 768 && width < 1100;
     final isMobile = width < 768;
+
+    final horizontalPadding = isMobile
+        ? 20.0
+        : (isTablet ? _kTabletHorizontalPadding : _kDesktopHorizontalPadding);
+    final verticalPadding = isMobile ? 48.0 : 64.0; // reduced from 92
 
     return Stack(
       children: [
@@ -169,15 +203,15 @@ class _ContactSectionState extends State<ContactSection> {
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 20 : (isTablet ? 40 : 80),
-            vertical: isMobile ? 48 : 92,
+            horizontal: horizontalPadding,
+            vertical: verticalPadding,
           ),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF07101A) : const Color(0xFFF8FAFC),
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1400),
+              constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
               child: isDesktop
                   ? _buildDesktopLayout(isDark, isTablet)
                   : (isTablet
@@ -247,18 +281,21 @@ class _ContactSectionState extends State<ContactSection> {
     return Column(
       children: [
         _buildHeader(false),
-        const SizedBox(height: 36),
+        const SizedBox(height: 28), // slightly reduced spacing
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // left column: info
             Expanded(flex: 1, child: _buildContactInfo(isDark, false)),
-            const SizedBox(width: 36),
-            // center: form
+            SizedBox(width: _kColumnGapDesktop),
+            // center: form (made slightly more dominant)
             Expanded(flex: 2, child: _buildContactForm(isDark, false)),
-            const SizedBox(width: 36),
-            // right: utilities (fills previous blank space)
-            SizedBox(width: 320, child: _buildUtilitiesPanel(isDark)),
+            SizedBox(width: _kColumnGapDesktop),
+            // right: utilities (smaller width)
+            SizedBox(
+              width: _kRightPanelWidth,
+              child: _buildUtilitiesPanel(isDark),
+            ),
           ],
         ),
       ],
@@ -345,39 +382,41 @@ class _ContactSectionState extends State<ContactSection> {
         ),
         const SizedBox(height: 20),
 
-        // two location cards stacked
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            _simpleCard(
-              title: "India Office",
-              subtitle: "UG 126, First Floor, Vikram Square\nIndore, MP 452009",
-              leading: Icons.location_on_rounded,
-              color: const Color(0xFFEF4444),
-              isDark: isDark,
-              width: isMobile ? double.infinity : 320,
-            ),
-            _simpleCard(
-              title: "United States Office",
-              subtitle: "2122 W Miners Dr\nDunlap, IL 61525",
-              leading: Icons.location_on_rounded,
-              color: const Color(0xFF10B981),
-              isDark: isDark,
-              width: isMobile ? double.infinity : 320,
-            ),
-          ],
+        // India office card with contact details
+        _officeCard(
+          title: "India Office",
+          address: "UG 126, First Floor, Vikram Square\nIndore, MP 452009",
+          email: "hr@kallwik.com",
+          phone: "+91 9827338178",
+          color: const Color(0xFFEF4444),
+          isDark: isDark,
+          width: isMobile ? double.infinity : null,
+        ),
+
+        const SizedBox(height: 12),
+
+        // US office card with contact details
+        _officeCard(
+          title: "United States Office",
+          address: "2122 W Miners Dr\nDunlap, IL 61525",
+          email: "sales@gmail.com",
+          phone: "+1 (815) 627-6066",
+          color: const Color(0xFF10B981),
+          isDark: isDark,
+          width: isMobile ? double.infinity : null,
         ),
 
         const SizedBox(height: 18),
 
+        // Primary contact emails
         _simpleCard(
           title: "Email Us",
-          subtitle: "hr@kallwik.com\ninfo@kallwik.com",
+          subtitle: "hr@kallwik.com\nsales@gmail.com",
           leading: Icons.email_rounded,
           color: const Color(0xFF3B82F6),
           isDark: isDark,
           width: isMobile ? double.infinity : 320,
+          onTap: () => _launchEmail("hr@kallwik.com"),
         ),
 
         const SizedBox(height: 12),
@@ -408,13 +447,14 @@ class _ContactSectionState extends State<ContactSection> {
     ).animate().fadeIn();
   }
 
-  Widget _simpleCard({
+  Widget _officeCard({
     required String title,
-    required String subtitle,
-    required IconData leading,
+    required String address,
+    required String email,
+    required String phone,
     required Color color,
     required bool isDark,
-    required double width,
+    double? width,
   }) {
     return Container(
           width: width,
@@ -424,33 +464,93 @@ class _ContactSectionState extends State<ContactSection> {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(leading, color: color),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Icons.location_on_rounded, color: color),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.only(left: 52),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      subtitle,
+                      address,
                       style: TextStyle(
                         color: isDark
                             ? Colors.white70
                             : const Color(0xFF64748B),
                         fontSize: 13,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () => _launchEmail(email),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.email_outlined,
+                            size: 16,
+                            color: isDark
+                                ? Colors.white60
+                                : const Color(0xFF64748B),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            email,
+                            style: TextStyle(
+                              color: const Color(0xFF3B82F6),
+                              fontSize: 13,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    InkWell(
+                      onTap: () => _launchPhone(phone),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.phone_outlined,
+                            size: 16,
+                            color: isDark
+                                ? Colors.white60
+                                : const Color(0xFF64748B),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            phone,
+                            style: TextStyle(
+                              color: const Color(0xFF3B82F6),
+                              fontSize: 13,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -462,6 +562,74 @@ class _ContactSectionState extends State<ContactSection> {
         .animate()
         .fadeIn(duration: 600.ms)
         .slideX(begin: -0.04, end: 0, duration: 600.ms);
+  }
+
+  Widget _simpleCard({
+    required String title,
+    required String subtitle,
+    required IconData leading,
+    required Color color,
+    required bool isDark,
+    required double width,
+    VoidCallback? onTap,
+  }) {
+    final widget =
+        Container(
+              width: width,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF07101A) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? Colors.white10 : Colors.black12,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(leading, color: color),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white70
+                                : const Color(0xFF64748B),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )
+            .animate()
+            .fadeIn(duration: 600.ms)
+            .slideX(begin: -0.04, end: 0, duration: 600.ms);
+
+    return onTap != null
+        ? InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: widget,
+          )
+        : widget;
   }
 
   Widget _hintChip(String text, bool isDark) {
@@ -801,307 +969,273 @@ class _ContactSectionState extends State<ContactSection> {
         fillColor: isDark
             ? Colors.white.withOpacity(0.02)
             : const Color(0xFFF8FAFC),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 12,
-        ),
       ),
-      dropdownColor: isDark ? const Color(0xFF0E2433) : Colors.white,
-      style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A)),
       items: items
-          .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+          .map((s) => DropdownMenuItem<String>(value: s, child: Text(s)))
           .toList(),
       onChanged: onChanged,
     );
   }
 
-  // ---------- right utilities ----------
+  // ---------- utilities (right panel) ----------
 
   Widget _buildUtilitiesPanel(bool isDark) {
     return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _mapCard(isDark),
+            // Testimonials card
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF07121A) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? Colors.white10 : Colors.black12,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.people_alt_rounded),
+                      const SizedBox(width: 8),
+                      const Text(
+                        "Testimonials",
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      const Spacer(),
+                      Text(
+                        "${_testimonialPage + 1}/${_testimonials.length}",
+                        style: TextStyle(
+                          color: isDark
+                              ? Colors.white70
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 120,
+                    child: PageView.builder(
+                      controller: _testimonialController,
+                      itemCount: _testimonials.length,
+                      onPageChanged: (i) =>
+                          setState(() => _testimonialPage = i),
+                      itemBuilder: (context, idx) {
+                        final t = _testimonials[idx];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '"${t["text"]}"',
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
+                                fontSize: 14,
+                                height: 1.3,
+                              ),
+                            ),
+                            const Spacer(),
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  child: Text(
+                                    (t["name"] ?? "U").substring(0, 1),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      t["name"] ?? '',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    Text(
+                                      t["role"] ?? '',
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? Colors.white70
+                                            : const Color(0xFF64748B),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ).animate().fadeIn();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      _testimonials.length,
+                      (i) => _testimonialDot(i == _testimonialPage, isDark),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 14),
-            _scheduleCard(isDark),
-            const SizedBox(height: 14),
-            _testimonialCard(isDark),
-            const SizedBox(height: 14),
-            _logosRow(isDark),
+
+            // Quick actions
+            _simpleCard(
+              title: "Request a Quote",
+              subtitle: "Tell us about your project and get a fast estimate.",
+              leading: Icons.request_quote_rounded,
+              color: const Color(0xFF8B5CF6),
+              isDark: isDark,
+              width: double.infinity,
+              onTap: () {
+                FocusScope.of(context).requestFocus(FocusNode());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Open Quote flow (placeholder)'),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            _simpleCard(
+              title: "Schedule a Call",
+              subtitle: "Book a free 30-min consultation.",
+              leading: Icons.calendar_today_rounded,
+              color: const Color(0xFF06B6D4),
+              isDark: isDark,
+              width: double.infinity,
+              onTap: () {
+                final uri = Uri.parse("https://calendly.com/");
+                launchUrl(uri);
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            // small social & contact buttons
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF07121A) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? Colors.white10 : Colors.black12,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Connect with us",
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => _launchEmail("hr@kallwik.com"),
+                        icon: const Icon(Icons.email_rounded),
+                        tooltip: 'Email',
+                      ),
+                      IconButton(
+                        onPressed: () => _launchPhone("+919827338178"),
+                        icon: const Icon(Icons.phone_rounded),
+                        tooltip: 'Call',
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          final uri = Uri.parse("https://www.linkedin.com/");
+                          launchUrl(uri);
+                        },
+                        icon: const Icon(Icons.work_rounded),
+                        tooltip: 'LinkedIn',
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          final uri = Uri.parse("https://github.com/");
+                          launchUrl(uri);
+                        },
+                        icon: const Icon(Icons.code_rounded),
+                        tooltip: 'GitHub',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         )
         .animate()
         .fadeIn(duration: 600.ms)
-        .slideX(begin: 0.03, end: 0, duration: 600.ms);
+        .slideX(begin: 0.02, end: 0, duration: 600.ms);
+  }
+
+  Widget _testimonialDot(bool active, bool isDark) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      width: active ? 18 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: active
+            ? const Color(0xFF3B82F6)
+            : (isDark ? Colors.white12 : Colors.black12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
   }
 
   Widget _buildUtilitiesCompact(bool isDark) {
     return Column(
       children: [
-        _scheduleCard(isDark),
-        const SizedBox(height: 12),
-        _testimonialCard(isDark),
-      ],
-    );
-  }
-
-  Widget _mapCard(bool isDark) {
-    return InkWell(
-      onTap: () => _showFullMap(),
-      child: Container(
-        height: 140,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF061018) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        _buildUtilitiesPanel(isDark),
+        const SizedBox(height: 14),
+        Row(
           children: [
-            const Text(
-              "Office Map",
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 10),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.grey.withOpacity(0.08),
+              child: OutlinedButton.icon(
+                onPressed: () => _launchEmail("hr@kallwik.com"),
+                icon: const Icon(Icons.email_outlined),
+                label: const Text("Email"),
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(
+                    color: isDark ? Colors.white12 : Colors.black12,
+                  ),
                 ),
-                child: const Center(
-                  child: Icon(Icons.map_rounded, size: 40, color: Colors.grey),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _launchPhone("+919827338178"),
+                icon: const Icon(Icons.phone_outlined),
+                label: const Text("Call"),
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(
+                    color: isDark ? Colors.white12 : Colors.black12,
+                  ),
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showFullMap() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: SizedBox(
-          width: 700,
-          height: 480,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  children: [
-                    const Expanded(child: Text("Map")),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: Container(
-                    width: 500,
-                    height: 360,
-                    color: Colors.grey.withOpacity(0.08),
-                    child: const Icon(Icons.map_rounded, size: 80),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _scheduleCard(bool isDark) {
-    return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF061018) : Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF3B82F6).withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.calendar_month_rounded,
-                      color: Color(0xFF3B82F6),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      "Schedule a free 30-min call",
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Book a quick call to discuss scope, budget and timeline.",
-                style: TextStyle(fontSize: 12),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // replace with actual calendar link
-                    launchUrl(
-                      Uri.parse("https://calendly.com/kallwik/30min"),
-                      mode: LaunchMode.externalApplication,
-                    );
-                  },
-                  icon: const Icon(Icons.schedule_rounded),
-                  label: const Text("Book a Call"),
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 700.ms)
-        .slideX(begin: 0.02, end: 0, duration: 700.ms);
-  }
-
-  Widget _testimonialCard(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      height: 170,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF061018) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.thumb_up_rounded,
-                  color: Color(0xFF10B981),
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  "What clients say",
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: PageView.builder(
-              controller: _testimonialController,
-              itemCount: _testimonials.length,
-              itemBuilder: (context, index) {
-                final t = _testimonials[index];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '“${t["text"]}”',
-                      style: const TextStyle(fontSize: 13),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '- ${t["name"]}, ${t["role"]}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                );
-              },
-              onPageChanged: (idx) => setState(() => _testimonialPage = idx),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              _testimonials.length,
-              (i) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: _testimonialPage == i ? 24 : 8,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: _testimonialPage == i
-                      ? const Color(0xFF3B82F6)
-                      : Colors.grey.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _logosRow(bool isDark) {
-    // small horizontal scrolling placeholder logos to fill space
-    final logos = List.generate(6, (i) => Icons.work_rounded);
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF061018) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: logos
-              .map(
-                (ic) => Container(
-                  margin: const EdgeInsets.only(right: 10),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(ic, size: 28),
-                ),
-              )
-              .toList(),
-        ),
-      ),
+      ],
     );
   }
 
@@ -1112,35 +1246,39 @@ class _ContactSectionState extends State<ContactSection> {
       child: Container(
         color: isDark
             ? Colors.black.withOpacity(0.55)
-            : Colors.white.withOpacity(0.55),
+            : Colors.white.withOpacity(0.6),
         child: Center(
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF06121B) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              color: isDark ? const Color(0xFF061018) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withOpacity(isDark ? 0.4 : 0.08),
                   blurRadius: 30,
                 ),
               ],
             ),
-            child: Column(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                SizedBox(
-                  width: 48,
-                  height: 48,
+              children: [
+                const SizedBox(
+                  width: 32,
+                  height: 32,
                   child: CircularProgressIndicator(strokeWidth: 3),
                 ),
-                SizedBox(height: 12),
-                Text("Sending your message..."),
-                SizedBox(height: 6),
-                Text("Please wait", style: TextStyle(fontSize: 12)),
+                const SizedBox(width: 16),
+                Text(
+                  "Sending message...",
+                  style: TextStyle(
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
-          ),
+          ).animate().fadeIn().scale(),
         ),
       ),
     );
@@ -1149,7 +1287,7 @@ class _ContactSectionState extends State<ContactSection> {
   Widget _buildSuccessOverlay() {
     return Positioned.fill(
       child: Container(
-        color: Colors.black.withOpacity(0.12),
+        color: Colors.black.withOpacity(0.25),
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(22),
@@ -1158,32 +1296,32 @@ class _ContactSectionState extends State<ContactSection> {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
-                  blurRadius: 30,
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 20,
                 ),
               ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.check_circle_rounded,
-                  color: const Color(0xFF10B981),
-                  size: 72,
+                const Icon(
+                  Icons.check_circle_outline,
+                  size: 56,
+                  color: Color(0xFF10B981),
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  "Sent!",
+                  "Message Sent",
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  "We received your message and will respond soon",
+                  "Thanks — we'll reach out shortly.",
                   textAlign: TextAlign.center,
                 ),
               ],
-            ).animate().fadeIn(duration: 220.ms),
-          ),
+            ),
+          ).animate().fadeIn().scaleXY(begin: 0.9, end: 1.0, duration: 500.ms),
         ),
       ),
     );

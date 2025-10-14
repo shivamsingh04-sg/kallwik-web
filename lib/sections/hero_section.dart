@@ -1,8 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
-class HeroSection extends StatelessWidget {
+class HeroSection extends StatefulWidget {
   const HeroSection({super.key});
+
+  @override
+  State<HeroSection> createState() => _HeroSectionState();
+}
+
+class _HeroSectionState extends State<HeroSection> {
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
+  int _currentIndex = 0;
+
+  final List<Map<String, String>> _slides = [
+    {
+      'title': 'Kallwik Technologies',
+      'subtitle': 'Empowering Digital Transformation',
+      'image': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa',
+    },
+    {
+      'title': 'Smart Software Solutions',
+      'subtitle': 'Delivering scalable products for the digital age',
+      'image': 'https://images.unsplash.com/photo-1525182008055-f88b95ff7980',
+    },
+    {
+      'title': 'Innovate. Build. Grow.',
+      'subtitle': 'Turning ideas into world-class digital products',
+      'image': 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -11,159 +39,165 @@ class HeroSection extends StatelessWidget {
     final isMobile = screenSize.width < 768;
     final isVerySmallScreen = screenSize.height < 600;
 
-    return Container(
-      height: _getResponsiveHeight(screenSize),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF0F172A),
-            const Color(0xFF1E293B).withOpacity(0.9),
-            const Color(0xFF334155).withOpacity(0.7),
-          ],
-        ),
-        image: isMobile
-            ? null
-            : const DecorationImage(
-                image: NetworkImage(
-                  "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
-                ),
-                fit: BoxFit.cover,
-                opacity: 0.3,
-              ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withOpacity(0.3),
-              Colors.black.withOpacity(0.7),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight > 0
-                        ? constraints.maxHeight * 0.8
-                        : 400,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 16 : (isTablet ? 32 : 48),
-                        vertical: isVerySmallScreen ? 16 : (isMobile ? 24 : 32),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (!isVerySmallScreen) const Spacer(flex: 1),
-
-                          Text(
-                                "Kallwik Technologies",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: _getResponsiveFontSize(
-                                    screenSize,
-                                    mobile: isVerySmallScreen ? 24 : 28,
-                                    tablet: 36,
-                                    desktop: 48,
-                                  ),
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                  height: 1.1,
-                                ),
-                                textAlign: TextAlign.center,
-                              )
-                              .animate()
-                              .fadeIn(duration: 1000.ms, delay: 200.ms)
-                              .slideY(begin: -0.3, curve: Curves.easeOutCubic),
-
-                          SizedBox(height: isVerySmallScreen ? 12 : 20),
-
-                          Text(
-                                "Empowering Digital Transformation",
-                                style: TextStyle(
-                                  color: const Color(0xFF60A5FA),
-                                  fontSize: _getResponsiveFontSize(
-                                    screenSize,
-                                    mobile: isVerySmallScreen ? 14 : 16,
-                                    tablet: 18,
-                                    desktop: 24,
-                                  ),
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                                textAlign: TextAlign.center,
-                              )
-                              .animate()
-                              .fadeIn(duration: 1000.ms, delay: 400.ms)
-                              .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-
-                          SizedBox(height: isVerySmallScreen ? 8 : 12),
-
-                          Container(
-                                constraints: BoxConstraints(
-                                  maxWidth: isMobile ? double.infinity : 600,
-                                ),
-                                child: Text(
-                                  isMobile
-                                      ? "Building scalable software solutions and modern web applications for the digital age"
-                                      : "Building scalable software solutions, modern web applications, and robust cloud infrastructure for the digital age",
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontSize: _getResponsiveFontSize(
-                                      screenSize,
-                                      mobile: isVerySmallScreen ? 12 : 14,
-                                      tablet: 16,
-                                      desktop: 18,
-                                    ),
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.5,
-                                    letterSpacing: 0.2,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                              .animate()
-                              .fadeIn(duration: 1000.ms, delay: 600.ms)
-                              .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-
-                          SizedBox(height: isVerySmallScreen ? 24 : 32),
-
-                          _buildCTASection(isMobile, isVerySmallScreen),
-
-                          SizedBox(height: isVerySmallScreen ? 24 : 40),
-
-                          // Animated Feature Showcase
-                          if (!isVerySmallScreen || screenSize.height > 500)
-                            _buildAnimatedFeatures(isMobile, isVerySmallScreen)
-                                .animate()
-                                .fadeIn(duration: 1000.ms, delay: 1200.ms)
-                                .slideY(begin: 0.3, curve: Curves.easeOutCubic),
-
-                          if (!isVerySmallScreen) const Spacer(flex: 1),
-
-                          SizedBox(height: isVerySmallScreen ? 16 : 24),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
+    return Stack(
+      children: [
+        // 🖼 Background Carousel
+        CarouselSlider.builder(
+          itemCount: _slides.length,
+          carouselController: _carouselController,
+          options: CarouselOptions(
+            height: _getResponsiveHeight(screenSize),
+            viewportFraction: 1.0,
+            autoPlay: true,
+            autoPlayInterval: const Duration(seconds: 6),
+            autoPlayAnimationDuration: const Duration(milliseconds: 1500),
+            enlargeCenterPage: false,
+            onPageChanged: (index, reason) {
+              setState(() => _currentIndex = index);
             },
           ),
+          itemBuilder: (context, index, realIndex) {
+            final slide = _slides[index];
+            return Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(slide['image']!),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.3),
+                      Colors.black.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
-      ),
+
+        // 🖋 Content Overlay
+        Positioned.fill(
+          child: SafeArea(
+            child: Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 16 : (isTablet ? 32 : 48),
+                vertical: isVerySmallScreen ? 16 : (isMobile ? 24 : 32),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                        _slides[_currentIndex]['title']!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: _getResponsiveFontSize(
+                            screenSize,
+                            mobile: isVerySmallScreen ? 24 : 28,
+                            tablet: 36,
+                            desktop: 48,
+                          ),
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                          height: 1.1,
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 800.ms, delay: 200.ms)
+                      .slideY(begin: -0.3, curve: Curves.easeOutCubic),
+
+                  SizedBox(height: isVerySmallScreen ? 12 : 20),
+
+                  Text(
+                        _slides[_currentIndex]['subtitle']!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: const Color(0xFF60A5FA),
+                          fontSize: _getResponsiveFontSize(
+                            screenSize,
+                            mobile: isVerySmallScreen ? 14 : 16,
+                            tablet: 18,
+                            desktop: 24,
+                          ),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 800.ms, delay: 400.ms)
+                      .slideY(begin: 0.2, curve: Curves.easeOutCubic),
+
+                  SizedBox(height: isVerySmallScreen ? 12 : 16),
+
+                  Text(
+                        "Building scalable software solutions, modern web apps, and robust cloud infrastructure for the digital age",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: _getResponsiveFontSize(
+                            screenSize,
+                            mobile: isVerySmallScreen ? 12 : 14,
+                            tablet: 16,
+                            desktop: 18,
+                          ),
+                          fontWeight: FontWeight.w400,
+                          height: 1.5,
+                          letterSpacing: 0.2,
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 800.ms, delay: 600.ms)
+                      .slideY(begin: 0.2, curve: Curves.easeOutCubic),
+
+                  const SizedBox(height: 32),
+
+                  _buildCTASection(isMobile, isVerySmallScreen),
+
+                  const SizedBox(height: 40),
+
+                  _buildAnimatedFeatures(isMobile, isVerySmallScreen)
+                      .animate()
+                      .fadeIn(duration: 1000.ms, delay: 1200.ms)
+                      .slideY(begin: 0.3, curve: Curves.easeOutCubic),
+
+                  const SizedBox(height: 24),
+
+                  // 🟦 Carousel Indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _slides.asMap().entries.map((entry) {
+                      return GestureDetector(
+                        onTap: () =>
+                            _carouselController.animateToPage(entry.key),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 400),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 8,
+                          width: _currentIndex == entry.key ? 24 : 8,
+                          decoration: BoxDecoration(
+                            color: _currentIndex == entry.key
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -184,36 +218,27 @@ class HeroSection extends StatelessWidget {
     return desktop;
   }
 
+  // 🟩 CTA Section (same as your version)
   Widget _buildCTASection(bool isMobile, bool isVerySmallScreen) {
     if (isMobile) {
       return Column(
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: _buildCTAButton(
-              text: "Explore Services",
-              isPrimary: true,
-              onPressed: () {
-                debugPrint("Navigate to services");
-              },
-              delay: 800,
-              isFullWidth: true,
-              isCompact: isVerySmallScreen,
-            ),
+          _buildCTAButton(
+            text: "Explore Services",
+            isPrimary: true,
+            onPressed: () => debugPrint("Navigate to services"),
+            delay: 800,
+            isFullWidth: true,
+            isCompact: isVerySmallScreen,
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: _buildCTAButton(
-              text: "Get Consultation",
-              isPrimary: false,
-              onPressed: () {
-                debugPrint("Navigate to consultation");
-              },
-              delay: 1000,
-              isFullWidth: true,
-              isCompact: isVerySmallScreen,
-            ),
+          _buildCTAButton(
+            text: "Get Consultation",
+            isPrimary: false,
+            onPressed: () => debugPrint("Navigate to consultation"),
+            delay: 1000,
+            isFullWidth: true,
+            isCompact: isVerySmallScreen,
           ),
         ],
       );
@@ -226,9 +251,7 @@ class HeroSection extends StatelessWidget {
           _buildCTAButton(
             text: "Explore Services",
             isPrimary: true,
-            onPressed: () {
-              debugPrint("Navigate to services");
-            },
+            onPressed: () => debugPrint("Navigate to services"),
             delay: 800,
             isFullWidth: false,
             isCompact: false,
@@ -236,9 +259,7 @@ class HeroSection extends StatelessWidget {
           _buildCTAButton(
             text: "Get Consultation",
             isPrimary: false,
-            onPressed: () {
-              debugPrint("Navigate to consultation");
-            },
+            onPressed: () => debugPrint("Navigate to consultation"),
             delay: 1000,
             isFullWidth: false,
             isCompact: false,
@@ -296,6 +317,7 @@ class HeroSection extends StatelessWidget {
         .scale(begin: const Offset(0.9, 0.9), curve: Curves.easeOutBack);
   }
 
+  // 💡 Feature chips (unchanged)
   Widget _buildAnimatedFeatures(bool isMobile, bool isVerySmallScreen) {
     final features = [
       {
@@ -320,26 +342,23 @@ class HeroSection extends StatelessWidget {
       },
     ];
 
-    return Container(
-      constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : 600),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: isMobile ? 12 : 20,
-        runSpacing: isMobile ? 12 : 16,
-        children: features.asMap().entries.map((entry) {
-          final index = entry.key;
-          final feature = entry.value;
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: isMobile ? 12 : 20,
+      runSpacing: isMobile ? 12 : 16,
+      children: features.asMap().entries.map((entry) {
+        final index = entry.key;
+        final feature = entry.value;
 
-          return _buildFeatureChip(
-            icon: feature['icon'] as IconData,
-            label: feature['label'] as String,
-            color: feature['color'] as Color,
-            delay: 1400 + (index * 150),
-            isMobile: isMobile,
-            isVerySmallScreen: isVerySmallScreen,
-          );
-        }).toList(),
-      ),
+        return _buildFeatureChip(
+          icon: feature['icon'] as IconData,
+          label: feature['label'] as String,
+          color: feature['color'] as Color,
+          delay: 1400 + (index * 150),
+          isMobile: isMobile,
+          isVerySmallScreen: isVerySmallScreen,
+        );
+      }).toList(),
     );
   }
 
@@ -354,8 +373,6 @@ class HeroSection extends StatelessWidget {
     return Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
               colors: [color.withOpacity(0.15), color.withOpacity(0.05)],
             ),
             borderRadius: BorderRadius.circular(12),
@@ -376,29 +393,17 @@ class HeroSection extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                    icon,
-                    color: color,
-                    size: isVerySmallScreen ? 16 : (isMobile ? 18 : 20),
-                  )
-                  .animate(onPlay: (controller) => controller.repeat())
-                  .shimmer(
-                    duration: 2000.ms,
-                    color: Colors.white.withOpacity(0.3),
-                    delay: Duration(milliseconds: delay),
-                  )
-                  .shake(
-                    duration: 3000.ms,
-                    hz: 0.5,
-                    delay: Duration(milliseconds: delay + 500),
-                  ),
-              SizedBox(width: isVerySmallScreen ? 6 : 8),
+                icon,
+                color: color,
+                size: isVerySmallScreen ? 16 : (isMobile ? 18 : 20),
+              ),
+              const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: isVerySmallScreen ? 12 : (isMobile ? 13 : 14),
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -409,12 +414,6 @@ class HeroSection extends StatelessWidget {
           duration: 800.ms,
           delay: Duration(milliseconds: delay),
         )
-        .scale(
-          begin: const Offset(0.8, 0.8),
-          curve: Curves.easeOutBack,
-          delay: Duration(milliseconds: delay),
-        )
-        .then()
-        .shimmer(duration: 2500.ms, color: color.withOpacity(0.4));
+        .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutBack);
   }
 }

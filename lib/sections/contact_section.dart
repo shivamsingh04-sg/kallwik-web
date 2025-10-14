@@ -406,19 +406,6 @@ class _ContactSectionState extends State<ContactSection> {
           width: isMobile ? double.infinity : null,
         ),
 
-        const SizedBox(height: 18),
-
-        // Primary contact emails
-        _simpleCard(
-          title: "Email Us",
-          subtitle: "hr@kallwik.com\nsales@kallwik.com",
-          leading: Icons.email_rounded,
-          color: const Color(0xFF3B82F6),
-          isDark: isDark,
-          width: isMobile ? double.infinity : 320,
-          onTap: () => _launchEmail("hr@kallwik.com"),
-        ),
-
         const SizedBox(height: 12),
 
         _simpleCard(
@@ -1154,7 +1141,9 @@ class _ContactSectionState extends State<ContactSection> {
                       ),
                       IconButton(
                         onPressed: () {
-                          final uri = Uri.parse("https://www.linkedin.com/");
+                          final uri = Uri.parse(
+                            "https://www.linkedin.com/company/kallwik-technologies/",
+                          );
                           launchUrl(uri);
                         },
                         icon: const Icon(Icons.work_rounded),

@@ -399,7 +399,7 @@ class _ContactSectionState extends State<ContactSection> {
         _officeCard(
           title: "United States Office",
           address: "2122 W Miners Dr\nDunlap, IL 61525",
-          email: "sales@gmail.com",
+          email: "sales@kallwik.com",
           phone: "+1 (815) 627-6066",
           color: const Color(0xFF10B981),
           isDark: isDark,
@@ -411,7 +411,7 @@ class _ContactSectionState extends State<ContactSection> {
         // Primary contact emails
         _simpleCard(
           title: "Email Us",
-          subtitle: "hr@kallwik.com\nsales@gmail.com",
+          subtitle: "hr@kallwik.com\nsales@kallwik.com",
           leading: Icons.email_rounded,
           color: const Color(0xFF3B82F6),
           isDark: isDark,
